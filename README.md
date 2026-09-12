@@ -46,9 +46,11 @@ Important settings include:
 - flight-end summary;
 - vertical-speed deadzone and HUD-toast duration.
 
-### TPS compensation note
+### TPS compensation
 
-The mod estimates effective TPS from client simulation tick spacing. This catches local/integrated-server and client tick slowdowns. A vanilla client cannot directly know a remote dedicated server's authoritative TPS without server support, so remote-server TPS cannot be measured exactly.
+Minecraft 26.2 routinely synchronizes server game time every 20 server ticks. Elytra Guides samples that packet cadence and smooths several samples to estimate effective remote-server TPS. Client tick spacing is used as a fallback until enough server samples are available.
+
+This is intentionally an **effective** TPS estimate rather than a privileged server metric: packet latency/jitter can affect individual samples, which is why the estimator uses a multi-packet window. With compensation enabled, the nominal 0.5°/tick target motion remains approximately tied to server tick progress during slowdowns instead of blindly staying at 10°/real-time second.
 
 ## Requirements
 
