@@ -1,6 +1,5 @@
 package io.github.fivepebblesgpt.elytraguides.hud;
 
-import io.github.fivepebblesgpt.elytraguides.config.CrosshairStyle;
 import io.github.fivepebblesgpt.elytraguides.config.ElytraGuidesConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -17,7 +16,7 @@ public final class CrosshairRenderer {
     }
 
     public boolean shouldReplaceVanilla() {
-        if (!functionalityEnabled.getAsBoolean() || config.crosshairStyle() == CrosshairStyle.VANILLA) {
+        if (!functionalityEnabled.getAsBoolean() || !config.dotCrosshair()) {
             return false;
         }
 
@@ -34,11 +33,6 @@ public final class CrosshairRenderer {
         int centerY = graphics.guiHeight() / 2;
         int color = config.crosshairColor().argb();
 
-        switch (config.crosshairStyle()) {
-            case DOT -> graphics.fill(centerX - 1, centerY - 1, centerX + 1, centerY + 1, color);
-            case VANILLA -> {
-                // The caller delegates to the original vanilla HUD element for this mode.
-            }
-        }
+        graphics.fill(centerX - 1, centerY - 1, centerX + 1, centerY + 1, color);
     }
 }
