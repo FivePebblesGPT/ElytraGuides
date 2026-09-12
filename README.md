@@ -33,14 +33,24 @@ Disable **Use dot crosshair** to keep the vanilla crosshair. The previous Thin C
 
 ## Altitude analytics
 
-Altitude segments are based on **vertical-speed sign changes**, not sampled all-time maxima:
+Turning points are detected from **vertical-speed sign changes** and the zero-speed altitude is interpolated between the surrounding samples.
 
-- positive -> negative vertical speed: local peak / end of ascent;
-- negative -> positive vertical speed: local trough / end of descent.
+The primary cycle metric is **peak-to-peak gain**:
 
-The zero-speed altitude is interpolated between the surrounding samples. Each ascent is measured from the immediately previous trough (or flight start), and each descent from the immediately previous peak (or flight start).
+- first detected peak establishes the baseline;
+- each later peak reports `current peak Y - previous peak Y`;
+- positive values mean the tech gained elevation that cycle, negative values mean it lost elevation.
 
-Turn-point messages can go to a small HUD toast, chat, both, or nowhere. An optional flight-end summary reports the flight's maximum Y and cumulative positive altitude gain.
+Amplitude is kept separate from gain. When **Show cycle amplitude** is enabled, the same completed-cycle notification also shows:
+
+- `↓` previous peak to trough distance; and
+- `↑` trough to current peak distance.
+
+For example: `Cycle gain +4.25 blocks • amplitude ↓36.10 / ↑40.35 • peak Y 128.70`.
+
+This deliberately avoids calling trough-to-peak ascent distance "gain". An optional flight-end summary reports maximum Y and the net peak-to-peak gain from the first detected peak to the last completed peak.
+
+Cycle messages can go to a small HUD toast, chat, both, or nowhere.
 
 ## Configuration
 
@@ -53,7 +63,7 @@ Important settings include:
 - target tolerance and guide dimensions/colors;
 - dot crosshair/color and whether it is flight-only;
 - toggle key binding;
-- peak/trough logging and output destination;
+- cycle-gain logging, amplitude display, and output destination;
 - flight-end summary;
 - vertical-speed deadzone and HUD-toast duration.
 
