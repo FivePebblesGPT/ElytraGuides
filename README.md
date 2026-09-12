@@ -16,18 +16,20 @@ The +32.5° and -49° guides are short centered pitch bars. They move vertically
 
 ## Toggle key
 
-Press **G** by default to toggle Elytra Guides at runtime. The keybind is configurable under Minecraft's Controls menu.
+Press **G** by default to toggle Elytra Guides at runtime. The same key mapping can be rebound from either:
+
+- Minecraft's Controls menu; or
+- the Elytra Guides owo-config screen, using its inline Toggle key control.
+
+Both interfaces edit the same Minecraft key mapping, so the binding stays synchronized and is saved in the normal Minecraft controls configuration.
 
 The runtime toggle controls the complete feature set: pitch guides, tracking target, altitude logging, and custom crosshair. The owo-config `enabled` option remains the persistent master switch.
 
 ## Crosshair
 
-The custom crosshair has two modes:
+Elytra Guides can replace the vanilla crosshair with a small **2x2 center dot**. The dot is enabled by default and, by default, only replaces the crosshair while Elytra flying.
 
-- Vanilla; or
-- a 2x2 center dot.
-
-The default is **Dot**, active **only while Elytra flying**.
+Disable **Use dot crosshair** to keep the vanilla crosshair. The previous Thin Crosshair mode has been removed.
 
 ## Altitude analytics
 
@@ -42,14 +44,15 @@ Turn-point messages can go to a small HUD toast, chat, both, or nowhere. An opti
 
 ## Configuration
 
-Configuration is provided by **owo-config**. If Mod Menu is installed, Elytra Guides automatically exposes its owo config screen from the Mod Menu configuration button.
+Configuration is provided by **owo-config**. If Mod Menu is installed, Elytra Guides exposes a custom owo config screen from the Mod Menu configuration button, including the inline toggle-key rebinder.
 
 Important settings include:
 
 - approach/snap pitch;
 - return rate and TPS compensation;
 - target tolerance and guide dimensions/colors;
-- crosshair style/color and whether it is flight-only;
+- dot crosshair/color and whether it is flight-only;
+- toggle key binding;
 - peak/trough logging and output destination;
 - flight-end summary;
 - vertical-speed deadzone and HUD-toast duration.
