@@ -11,7 +11,7 @@ import io.github.fivepebblesgpt.elytraguides.hud.GuideHudRenderer;
 import io.github.fivepebblesgpt.elytraguides.hud.HudToastManager;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.client.KeyMapping;
@@ -24,8 +24,9 @@ public final class ElytraGuidesClient implements ClientModInitializer {
     public static final ElytraGuidesConfig CONFIG = ElytraGuidesConfig.createAndLoad();
     public static final TpsEstimator TPS_ESTIMATOR = new TpsEstimator();
 
+    private static KeyMapping toggleFunctionalityKey;
+
     private boolean runtimeEnabled = true;
-    private KeyMapping toggleFunctionalityKey;
 
     private final ManeuverGuide maneuverGuide = new ManeuverGuide(CONFIG);
     private final HudToastManager toastManager = new HudToastManager();
@@ -41,6 +42,8 @@ public final class ElytraGuidesClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        migrateIncorrectPitchDefaults();
+
         KeyMapping.Category category = KeyMapping.Category.register(
                 Identifier.fromNamespaceAndPath(MOD_ID, "controls")
         );
@@ -76,6 +79,13 @@ public final class ElytraGuidesClient implements ClientModInitializer {
                     }
                 }
         );
+    }
+
+    public static KeyMapping toggleFunctionalityKey() {
+        if (toggleFunctionalityKey == null) {
+            throw new IllegalStateException("Toggle key mapping has not been registered yet");
+        }
+        return toggleFunctionalityKey;
     }
 
     private void onEndClientTick(Minecraft minecraft) {
@@ -127,5 +137,13 @@ public final class ElytraGuidesClient implements ClientModInitializer {
         altitudeTracker.reset();
         TPS_ESTIMATOR.reset();
         toastManager.clear();
+    }
+
+    private static void migrateIncorrectPitchDefaults() {
+        if (Float.compare(CONFIG.approachPitch(), -32.5f) == 0
+                && Float.compare(CONFIG.snapPitch(), 49.0f) == 0) {
+            CONFIG.approachPitch(32.5f);
+            CONFIG.snapPitch(-49.0f);
+        }
     }
 }
