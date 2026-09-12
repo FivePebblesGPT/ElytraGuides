@@ -44,6 +44,13 @@ java {
     targetCompatibility = JavaVersion.VERSION_25
 }
 
+// Keep CI/package consumers independent of Loom's internal output layout.
+tasks.register('copyDistributionJar', Copy) {
+    dependsOn tasks.named('jar')
+    from(tasks.named('jar').flatMap { it.archiveFile })
+    into(layout.buildDirectory.dir('distribution'))
+}
+
 publishing {
     publications {
         create('mavenJava', MavenPublication) {
