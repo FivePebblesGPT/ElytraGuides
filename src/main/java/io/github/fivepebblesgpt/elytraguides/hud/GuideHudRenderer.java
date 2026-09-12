@@ -8,21 +8,29 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 import java.util.Locale;
+import java.util.function.BooleanSupplier;
 
 public final class GuideHudRenderer {
     private final ElytraGuidesConfig config;
     private final ManeuverGuide maneuverGuide;
     private final TpsEstimator tpsEstimator;
+    private final BooleanSupplier functionalityEnabled;
 
-    public GuideHudRenderer(ElytraGuidesConfig config, ManeuverGuide maneuverGuide, TpsEstimator tpsEstimator) {
+    public GuideHudRenderer(
+            ElytraGuidesConfig config,
+            ManeuverGuide maneuverGuide,
+            TpsEstimator tpsEstimator,
+            BooleanSupplier functionalityEnabled
+    ) {
         this.config = config;
         this.maneuverGuide = maneuverGuide;
         this.tpsEstimator = tpsEstimator;
+        this.functionalityEnabled = functionalityEnabled;
     }
 
     public void render(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (!config.enabled() || minecraft.player == null || !minecraft.player.isFallFlying()) {
+        if (!functionalityEnabled.getAsBoolean() || minecraft.player == null || !minecraft.player.isFallFlying()) {
             return;
         }
 
