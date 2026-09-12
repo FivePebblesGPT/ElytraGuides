@@ -22,12 +22,14 @@
   "text.config.elytraguides.option.snapColor": "Snap-bar color",
   "text.config.elytraguides.option.targetColor": "Tracking-circle color",
   "text.config.elytraguides.option.onTargetColor": "On-target color",
+  "text.config.elytraguides.option.toggleKey": "Toggle key",
+  "text.config.elytraguides.option.toggleKey.listening": "Press a key...",
+  "text.config.elytraguides.option.toggleKey.reset": "Reset",
 
-  "text.config.elytraguides.option.crosshairStyle": "Crosshair style",
-  "text.config.elytraguides.option.crosshairStyle.value.vanilla": "Vanilla",
-  "text.config.elytraguides.option.crosshairStyle.value.dot": "Dot",
+  "text.config.elytraguides.option.dotCrosshair": "Use dot crosshair",
+  "text.config.elytraguides.option.dotCrosshair.tooltip": "Replace the vanilla crosshair with a small 2x2 center dot when the crosshair replacement is active.",
   "text.config.elytraguides.option.crosshairColor": "Crosshair color",
-  "text.config.elytraguides.option.customCrosshairOnlyWhileFlying": "Custom crosshair only while flying",
+  "text.config.elytraguides.option.customCrosshairOnlyWhileFlying": "Dot only while flying",
   "text.config.elytraguides.option.customCrosshairOnlyWhileFlying.tooltip": "When enabled, the dot replaces the vanilla crosshair only during Elytra flight.",
 
   "text.config.elytraguides.option.logAscentAtPeak": "Log ascent at peaks",
