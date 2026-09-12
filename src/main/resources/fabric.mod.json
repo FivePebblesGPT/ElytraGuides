@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "elytraguides",
+  "version": "${version}",
+  "name": "Elytra Guides",
+  "description": "Jet-style pitch guides and flight analytics for precise Elytra maneuvers.",
+  "authors": [
+    "FivePebblesGPT"
+  ],
+  "contact": {
+    "sources": "https://github.com/FivePebblesGPT/ElytraGuides",
+    "issues": "https://github.com/FivePebblesGPT/ElytraGuides/issues"
+  },
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "io.github.fivepebblesgpt.elytraguides.ElytraGuidesClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "=26.2",
+    "java": ">=25",
+    "fabric-api": ">=0.160.0+26.2",
+    "owo": ">=0.13.1+26.2"
+  },
+  "suggests": {
+    "modmenu": "*"
+  }
+}
