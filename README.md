@@ -4,22 +4,30 @@ Client-side Fabric HUD guides for executing precise Elytra pitch maneuvers in Mi
 
 ## Default maneuver
 
-- Hold the approach around **-32.5°**.
-- Snap through **+49.0°**.
-- Crossing +49° resets a tracking circle to +49°.
-- The circle then returns toward -32.5° at **10°/second at 20 TPS** (0.5° per tick), with optional effective-TPS compensation.
+Minecraft pitch uses negative values for looking upward and positive values for looking downward.
+
+- Hold the downward approach around **+32.5°**.
+- Snap upward through **-49.0°**.
+- Crossing -49° resets a tracking circle to -49°.
+- The circle then moves downward toward +32.5° at **10°/second at 20 TPS** (0.5° per tick), with optional effective-TPS compensation.
 - The tracking circle changes to the configured on-target color when your pitch is within the tolerance.
 
-The -32.5° and +49° guides are short centered pitch bars. They move vertically on screen as your pitch changes, so the center/crosshair intersects a bar at its exact configured pitch.
+The +32.5° and -49° guides are short centered pitch bars. They move vertically on screen as your pitch changes, so the center/crosshair intersects a bar at its exact configured pitch.
+
+## Toggle key
+
+Press **G** by default to toggle Elytra Guides at runtime. The keybind is configurable under Minecraft's Controls menu.
+
+The runtime toggle controls the complete feature set: pitch guides, tracking target, altitude logging, and custom crosshair. The owo-config `enabled` option remains the persistent master switch.
 
 ## Crosshair
 
-The vanilla crosshair can be replaced with either:
+The custom crosshair has two modes:
 
-- a 2 px thick thin cross with a 2x2 center gap; or
+- Vanilla; or
 - a 2x2 center dot.
 
-The replacement can be global or limited to Elytra flight.
+The default is **Dot**, active **only while Elytra flying**.
 
 ## Altitude analytics
 
@@ -41,7 +49,7 @@ Important settings include:
 - approach/snap pitch;
 - return rate and TPS compensation;
 - target tolerance and guide dimensions/colors;
-- crosshair style/color/arm length;
+- crosshair style/color and whether it is flight-only;
 - peak/trough logging and output destination;
 - flight-end summary;
 - vertical-speed deadzone and HUD-toast duration.
@@ -66,9 +74,9 @@ This is intentionally an **effective** TPS estimate rather than a privileged ser
 The project targets Gradle 9.5.1 (the version used by Fabric's 26.2 example project).
 
 ```bash
-gradle build
+gradle build copyDistributionJar
 ```
 
-The built jar is written to `build/libs/`.
+The CI/package-ready jar is copied to `build/distribution/`.
 
 A GitHub Actions workflow also builds every push and pull request with Java 25 and Gradle 9.5.1.
