@@ -1,12 +1,10 @@
 package io.github.fivepebblesgpt.elytraguides.config;
 
 import io.wispforest.owo.config.annotation.Config;
-import io.wispforest.owo.config.annotation.Modmenu;
 import io.wispforest.owo.config.annotation.RangeConstraint;
 import io.wispforest.owo.config.annotation.SectionHeader;
 import io.wispforest.owo.ui.core.Color;
 
-@Modmenu(modId = "elytraguides")
 @Config(name = "elytraguides", wrapperName = "ElytraGuidesConfig")
 public class ElytraGuidesConfigModel {
 
@@ -42,7 +40,7 @@ public class ElytraGuidesConfigModel {
     public Color onTargetColor = Color.ofArgb(0xFF55FF88);
 
     @SectionHeader("crosshair")
-    public CrosshairStyle crosshairStyle = CrosshairStyle.DOT;
+    public boolean dotCrosshair = true;
     public Color crosshairColor = Color.ofArgb(0xFFFFFFFF);
     public boolean customCrosshairOnlyWhileFlying = true;
 
