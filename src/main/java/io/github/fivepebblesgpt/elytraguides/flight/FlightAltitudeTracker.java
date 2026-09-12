@@ -6,19 +6,20 @@ import net.minecraft.network.chat.Component;
 import java.util.Locale;
 
 public final class FlightAltitudeTracker {
-    private static final double MIN_REPORTABLE_SEGMENT = 0.01;
+    private static final double MIN_REPORTABLE_AMPLITUDE = 0.01;
 
     private final ElytraGuidesConfig config;
     private final NotificationService notifications;
 
     private boolean inFlight;
-    private double startY;
     private double maxY;
-    private double minY;
-    private double totalAscent;
 
     private double lastTurnY;
     private TurnType lastTurnType = TurnType.START;
+
+    private int peakCount;
+    private double firstPeakY;
+    private double previousPeakY;
 
     private boolean hasSignedSample;
     private int lastSign;
@@ -43,7 +44,6 @@ public final class FlightAltitudeTracker {
         }
 
         maxY = Math.max(maxY, y);
-        minY = Math.min(minY, y);
 
         int sign = velocitySign(verticalVelocity, config.verticalSpeedDeadzone());
         if (sign == 0) {
@@ -61,7 +61,6 @@ public final class FlightAltitudeTracker {
         if (sign != lastSign) {
             double crossingY = zeroCrossingY(lastSignedY, lastSignedVelocity, y, verticalVelocity);
             maxY = Math.max(maxY, crossingY);
-            minY = Math.min(minY, crossingY);
 
             if (lastSign > 0 && sign < 0) {
                 onPeak(crossingY);
@@ -80,42 +79,59 @@ public final class FlightAltitudeTracker {
         inFlight = false;
         hasSignedSample = false;
         lastTurnType = TurnType.START;
-        totalAscent = 0.0;
+        peakCount = 0;
     }
 
     private void beginFlight(double y) {
         inFlight = true;
-        startY = y;
         maxY = y;
-        minY = y;
-        totalAscent = 0.0;
         lastTurnY = y;
         lastTurnType = TurnType.START;
+        peakCount = 0;
         hasSignedSample = false;
     }
 
     private void onPeak(double peakY) {
-        double ascent = peakY - lastTurnY;
-        if (ascent > 0.0) {
-            totalAscent += ascent;
-        }
+        double ascentAmplitude = peakY - lastTurnY;
 
-        if (config.logAscentAtPeak() && ascent >= MIN_REPORTABLE_SEGMENT) {
+        if (peakCount == 0) {
+            firstPeakY = peakY;
+        } else if (config.logAscentAtPeak()) {
+            double cycleGain = peakY - previousPeakY;
+            String amplitudePart = ascentAmplitude >= MIN_REPORTABLE_AMPLITUDE
+                    ? String.format(Locale.ROOT, "  •  ascent amplitude %.2f", ascentAmplitude)
+                    : "";
+
             notifications.send(
-                    Component.literal(String.format(Locale.ROOT, "Ascent +%.2f blocks  •  peak Y %.2f", ascent, peakY)),
+                    Component.literal(String.format(
+                            Locale.ROOT,
+                            "Cycle gain %+.2f blocks%s  •  peak Y %.2f",
+                            cycleGain,
+                            amplitudePart,
+                            peakY
+                    )),
                     config.turnPointDestination()
             );
         }
 
+        previousPeakY = peakY;
+        peakCount++;
         lastTurnY = peakY;
         lastTurnType = TurnType.PEAK;
     }
 
     private void onTrough(double troughY) {
-        double descent = lastTurnY - troughY;
-        if (config.logDescentAtTrough() && descent >= MIN_REPORTABLE_SEGMENT) {
+        double descentAmplitude = lastTurnY - troughY;
+        if (config.logDescentAtTrough()
+                && lastTurnType == TurnType.PEAK
+                && descentAmplitude >= MIN_REPORTABLE_AMPLITUDE) {
             notifications.send(
-                    Component.literal(String.format(Locale.ROOT, "Descent -%.2f blocks  •  trough Y %.2f", descent, troughY)),
+                    Component.literal(String.format(
+                            Locale.ROOT,
+                            "Descent amplitude %.2f blocks  •  trough Y %.2f",
+                            descentAmplitude,
+                            troughY
+                    )),
                     config.turnPointDestination()
             );
         }
@@ -125,24 +141,27 @@ public final class FlightAltitudeTracker {
     }
 
     private void endFlight(double endY) {
-        double finalTotalAscent = totalAscent;
-        if (hasSignedSample && lastSign > 0) {
-            finalTotalAscent += Math.max(0.0, endY - lastTurnY);
-        }
-
         maxY = Math.max(maxY, endY);
-        minY = Math.min(minY, endY);
 
         if (config.flightEndSummary()) {
-            notifications.send(
-                    Component.literal(String.format(
-                            Locale.ROOT,
-                            "Flight ended  •  max Y %.2f  •  total gain +%.2f blocks",
-                            maxY,
-                            finalTotalAscent
-                    )),
-                    config.flightEndDestination()
-            );
+            Component summary;
+            if (peakCount >= 2) {
+                double netPeakGain = previousPeakY - firstPeakY;
+                summary = Component.literal(String.format(
+                        Locale.ROOT,
+                        "Flight ended  •  max Y %.2f  •  net peak gain %+.2f blocks",
+                        maxY,
+                        netPeakGain
+                ));
+            } else {
+                summary = Component.literal(String.format(
+                        Locale.ROOT,
+                        "Flight ended  •  max Y %.2f  •  net peak gain n/a",
+                        maxY
+                ));
+            }
+
+            notifications.send(summary, config.flightEndDestination());
         }
 
         reset();
