@@ -14,10 +14,10 @@ public class ElytraGuidesConfigModel {
     public boolean enabled = true;
 
     @RangeConstraint(min = -90.0, max = 90.0, decimalPlaces = 1)
-    public float approachPitch = -32.5f;
+    public float approachPitch = 32.5f;
 
     @RangeConstraint(min = -90.0, max = 90.0, decimalPlaces = 1)
-    public float snapPitch = 49.0f;
+    public float snapPitch = -49.0f;
 
     @RangeConstraint(min = 0.1, max = 60.0, decimalPlaces = 1)
     public float returnRateDegreesPerSecond = 10.0f;
@@ -42,13 +42,9 @@ public class ElytraGuidesConfigModel {
     public Color onTargetColor = Color.ofArgb(0xFF55FF88);
 
     @SectionHeader("crosshair")
-    public CrosshairStyle crosshairStyle = CrosshairStyle.THIN_CROSS;
+    public CrosshairStyle crosshairStyle = CrosshairStyle.DOT;
     public Color crosshairColor = Color.ofArgb(0xFFFFFFFF);
-
-    @RangeConstraint(min = 3, max = 20)
-    public int crosshairArmLength = 7;
-
-    public boolean customCrosshairOnlyWhileFlying = false;
+    public boolean customCrosshairOnlyWhileFlying = true;
 
     @SectionHeader("altitude")
     public boolean logAscentAtPeak = true;
