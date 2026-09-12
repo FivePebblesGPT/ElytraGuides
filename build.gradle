@@ -48,10 +48,11 @@ java {
     targetCompatibility = JavaVersion.VERSION_25
 }
 
-// Copy the remapped, distribution-ready mod jar to a stable CI path.
+// Minecraft 26.2 uses Loom's no-remap plugin, so the standard jar is the
+// production-ready mod jar. Copy it to a stable CI output path.
 tasks.register('copyDistributionJar', Copy) {
-    dependsOn tasks.named('remapJar')
-    from(tasks.named('remapJar').flatMap { it.archiveFile })
+    dependsOn tasks.named('jar')
+    from(tasks.named('jar').flatMap { it.archiveFile })
     into(layout.buildDirectory.dir('distribution'))
 }
 
