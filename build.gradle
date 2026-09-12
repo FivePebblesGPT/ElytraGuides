@@ -16,6 +16,10 @@ repositories {
         url = 'https://maven.wispforest.io/releases'
     }
     maven {
+        name = 'Terraformers'
+        url = 'https://maven.terraformersmc.com/releases'
+    }
+    maven {
         name = 'JitPack'
         url = 'https://jitpack.io'
     }
@@ -25,10 +29,11 @@ dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     implementation "net.fabricmc:fabric-loader:${project.loader_version}"
     implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-    implementation "net.fabricmc.fabric-api:fabric-key-mapping-api-v1:${project.fabric_key_mapping_api_version}"
 
     implementation "io.wispforest:owo-lib:${project.owo_version}"
     annotationProcessor "io.wispforest:owo-lib:${project.owo_version}"
+
+    compileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
 }
 
 processResources {
