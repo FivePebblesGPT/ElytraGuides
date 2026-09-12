@@ -5,15 +5,19 @@ import io.github.fivepebblesgpt.elytraguides.config.ElytraGuidesConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
+import java.util.function.BooleanSupplier;
+
 public final class CrosshairRenderer {
     private final ElytraGuidesConfig config;
+    private final BooleanSupplier functionalityEnabled;
 
-    public CrosshairRenderer(ElytraGuidesConfig config) {
+    public CrosshairRenderer(ElytraGuidesConfig config, BooleanSupplier functionalityEnabled) {
         this.config = config;
+        this.functionalityEnabled = functionalityEnabled;
     }
 
     public boolean shouldReplaceVanilla() {
-        if (config.crosshairStyle() == CrosshairStyle.VANILLA) {
+        if (!functionalityEnabled.getAsBoolean() || config.crosshairStyle() == CrosshairStyle.VANILLA) {
             return false;
         }
 
@@ -31,25 +35,10 @@ public final class CrosshairRenderer {
         int color = config.crosshairColor().argb();
 
         switch (config.crosshairStyle()) {
-            case THIN_CROSS -> drawThinCross(graphics, centerX, centerY, config.crosshairArmLength(), color);
             case DOT -> graphics.fill(centerX - 1, centerY - 1, centerX + 1, centerY + 1, color);
             case VANILLA -> {
                 // The caller delegates to the original vanilla HUD element for this mode.
             }
         }
-    }
-
-    private static void drawThinCross(
-            GuiGraphicsExtractor graphics,
-            int centerX,
-            int centerY,
-            int armLength,
-            int color
-    ) {
-        // Two-pixel-thick arms around a 2x2 empty square centered on screen.
-        graphics.fill(centerX - 1, centerY - 1 - armLength, centerX + 1, centerY - 1, color);
-        graphics.fill(centerX - 1, centerY + 1, centerX + 1, centerY + 1 + armLength, color);
-        graphics.fill(centerX - 1 - armLength, centerY - 1, centerX - 1, centerY + 1, color);
-        graphics.fill(centerX + 1, centerY - 1, centerX + 1 + armLength, centerY + 1, color);
     }
 }
