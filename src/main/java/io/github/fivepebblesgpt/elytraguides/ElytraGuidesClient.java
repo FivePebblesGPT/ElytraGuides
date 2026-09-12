@@ -18,13 +18,13 @@ import net.minecraft.resources.Identifier;
 public final class ElytraGuidesClient implements ClientModInitializer {
     public static final String MOD_ID = "elytraguides";
     public static final ElytraGuidesConfig CONFIG = ElytraGuidesConfig.createAndLoad();
+    public static final TpsEstimator TPS_ESTIMATOR = new TpsEstimator();
 
-    private final TpsEstimator tpsEstimator = new TpsEstimator();
     private final ManeuverGuide maneuverGuide = new ManeuverGuide(CONFIG);
     private final HudToastManager toastManager = new HudToastManager();
     private final NotificationService notifications = new NotificationService(CONFIG, toastManager);
     private final FlightAltitudeTracker altitudeTracker = new FlightAltitudeTracker(CONFIG, notifications);
-    private final GuideHudRenderer guideHudRenderer = new GuideHudRenderer(CONFIG, maneuverGuide, tpsEstimator);
+    private final GuideHudRenderer guideHudRenderer = new GuideHudRenderer(CONFIG, maneuverGuide, TPS_ESTIMATOR);
     private final CrosshairRenderer crosshairRenderer = new CrosshairRenderer(CONFIG);
 
     @Override
@@ -58,13 +58,13 @@ public final class ElytraGuidesClient implements ClientModInitializer {
         if (minecraft.player == null || minecraft.level == null) {
             maneuverGuide.reset();
             altitudeTracker.reset();
-            tpsEstimator.reset();
+            TPS_ESTIMATOR.reset();
             toastManager.clear();
             return;
         }
 
         long nowNanos = System.nanoTime();
-        tpsEstimator.onTick(nowNanos);
+        TPS_ESTIMATOR.onClientTick(nowNanos);
 
         boolean flying = minecraft.player.isFallFlying();
         maneuverGuide.tick(flying, minecraft.player.getXRot(), nowNanos);
