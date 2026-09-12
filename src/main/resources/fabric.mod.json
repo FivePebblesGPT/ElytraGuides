@@ -15,6 +15,9 @@
   "entrypoints": {
     "client": [
       "io.github.fivepebblesgpt.elytraguides.ElytraGuidesClient"
+    ],
+    "modmenu": [
+      "io.github.fivepebblesgpt.elytraguides.config.ElytraGuidesModMenu"
     ]
   },
   "mixins": [
