@@ -92,15 +92,11 @@ public final class FlightAltitudeTracker {
     }
 
     private void onPeak(double peakY) {
-        double ascentAmplitude = peakY - lastTurnY;
-
         if (peakCount == 0) {
             firstPeakY = peakY;
         } else if (config.logAscentAtPeak()) {
             double cycleGain = peakY - previousPeakY;
-            String amplitudePart = ascentAmplitude >= MIN_REPORTABLE_AMPLITUDE
-                    ? String.format(Locale.ROOT, "  •  ascent amplitude %.2f", ascentAmplitude)
-                    : "";
+            String amplitudePart = cycleAmplitudePart(peakY);
 
             notifications.send(
                     Component.literal(String.format(
@@ -120,22 +116,26 @@ public final class FlightAltitudeTracker {
         lastTurnType = TurnType.PEAK;
     }
 
-    private void onTrough(double troughY) {
-        double descentAmplitude = lastTurnY - troughY;
-        if (config.logDescentAtTrough()
-                && lastTurnType == TurnType.PEAK
-                && descentAmplitude >= MIN_REPORTABLE_AMPLITUDE) {
-            notifications.send(
-                    Component.literal(String.format(
-                            Locale.ROOT,
-                            "Descent amplitude %.2f blocks  •  trough Y %.2f",
-                            descentAmplitude,
-                            troughY
-                    )),
-                    config.turnPointDestination()
-            );
+    private String cycleAmplitudePart(double currentPeakY) {
+        if (!config.logDescentAtTrough() || lastTurnType != TurnType.TROUGH) {
+            return "";
         }
 
+        double descentAmplitude = previousPeakY - lastTurnY;
+        double ascentAmplitude = currentPeakY - lastTurnY;
+        if (descentAmplitude < MIN_REPORTABLE_AMPLITUDE && ascentAmplitude < MIN_REPORTABLE_AMPLITUDE) {
+            return "";
+        }
+
+        return String.format(
+                Locale.ROOT,
+                "  •  amplitude ↓%.2f / ↑%.2f",
+                Math.max(0.0, descentAmplitude),
+                Math.max(0.0, ascentAmplitude)
+        );
+    }
+
+    private void onTrough(double troughY) {
         lastTurnY = troughY;
         lastTurnType = TurnType.TROUGH;
     }
