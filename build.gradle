@@ -15,6 +15,10 @@ repositories {
         name = 'Wisp Forest'
         url = 'https://maven.wispforest.io/releases'
     }
+    maven {
+        name = 'JitPack'
+        url = 'https://jitpack.io'
+    }
 }
 
 dependencies {
@@ -44,10 +48,10 @@ java {
     targetCompatibility = JavaVersion.VERSION_25
 }
 
-// Keep CI/package consumers independent of Loom's internal output layout.
+// Copy the remapped, distribution-ready mod jar to a stable CI path.
 tasks.register('copyDistributionJar', Copy) {
-    dependsOn tasks.named('jar')
-    from(tasks.named('jar').flatMap { it.archiveFile })
+    dependsOn tasks.named('remapJar')
+    from(tasks.named('remapJar').flatMap { it.archiveFile })
     into(layout.buildDirectory.dir('distribution'))
 }
 
