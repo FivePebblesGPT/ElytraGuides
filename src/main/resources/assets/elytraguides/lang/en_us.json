@@ -11,7 +11,7 @@
   "text.config.elytraguides.option.returnRateDegreesPerSecond": "Return rate (deg/s)",
   "text.config.elytraguides.option.returnRateDegreesPerSecond.tooltip": "Tracking-circle speed at 20 TPS. Default: 10°/s, equivalent to 0.5° per tick.",
   "text.config.elytraguides.option.compensateForTps": "TPS compensation",
-  "text.config.elytraguides.option.compensateForTps.tooltip": "Scale the real-time return rate by estimated effective client TPS during slowdowns.",
+  "text.config.elytraguides.option.compensateForTps.tooltip": "Scale the real-time return rate using effective server TPS estimated from periodic time-sync packets, with client tick timing as a fallback.",
   "text.config.elytraguides.option.targetTolerance": "On-target tolerance",
   "text.config.elytraguides.option.targetTolerance.tooltip": "How close your pitch must be to the tracking circle before it shows the on-target indication.",
   "text.config.elytraguides.option.guideBarWidth": "Guide bar width",
