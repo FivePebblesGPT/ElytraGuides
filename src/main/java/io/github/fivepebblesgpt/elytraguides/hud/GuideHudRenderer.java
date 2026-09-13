@@ -3,6 +3,7 @@ package io.github.fivepebblesgpt.elytraguides.hud;
 import io.github.fivepebblesgpt.elytraguides.config.ElytraGuidesConfig;
 import io.github.fivepebblesgpt.elytraguides.flight.HorizontalDriftTracker;
 import io.github.fivepebblesgpt.elytraguides.flight.ManeuverGuide;
+import io.github.fivepebblesgpt.elytraguides.flight.SpeedGuide;
 import io.github.fivepebblesgpt.elytraguides.flight.TpsEstimator;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -15,11 +16,15 @@ public final class GuideHudRenderer {
     private static final int TARGET_BAR_WIDTH = 18;
     private static final int TARGET_BAR_OFFSET = 3;
     private static final int DRIFT_GUIDE_Y_OFFSET = 12;
+    private static final int SPEEDOMETER_Y_OFFSET = 25;
+    private static final int SPEEDOMETER_WIDTH = 96;
+    private static final int SPEEDOMETER_HEIGHT = 4;
 
     private final ElytraGuidesConfig config;
     private final ManeuverGuide maneuverGuide;
     private final TpsEstimator tpsEstimator;
     private final HorizontalDriftTracker horizontalDriftTracker;
+    private final SpeedGuide speedGuide;
     private final BooleanSupplier functionalityEnabled;
 
     public GuideHudRenderer(
@@ -27,12 +32,14 @@ public final class GuideHudRenderer {
             ManeuverGuide maneuverGuide,
             TpsEstimator tpsEstimator,
             HorizontalDriftTracker horizontalDriftTracker,
+            SpeedGuide speedGuide,
             BooleanSupplier functionalityEnabled
     ) {
         this.config = config;
         this.maneuverGuide = maneuverGuide;
         this.tpsEstimator = tpsEstimator;
         this.horizontalDriftTracker = horizontalDriftTracker;
+        this.speedGuide = speedGuide;
         this.functionalityEnabled = functionalityEnabled;
     }
 
@@ -82,6 +89,10 @@ public final class GuideHudRenderer {
                     currentYaw,
                     fovDegrees
             );
+        }
+
+        if (config.showSpeedometer() && speedGuide.hasSample()) {
+            drawSpeedometer(graphics, centerX, centerY);
         }
 
         if (maneuverGuide.isTargetActive()) {
@@ -189,6 +200,55 @@ public final class GuideHudRenderer {
         graphics.fill(targetX, y - 2, targetX + 1, y + 3, color);
     }
 
+    private void drawSpeedometer(GuiGraphicsExtractor graphics, int centerX, int centerY) {
+        int left = centerX - SPEEDOMETER_WIDTH / 2;
+        int right = left + SPEEDOMETER_WIDTH;
+        int top = centerY + SPEEDOMETER_Y_OFFSET;
+        int bottom = top + SPEEDOMETER_HEIGHT;
+
+        double scaleMax = Math.max(50.0, speedGuide.optimalHorizontalMax() + 7.0);
+        double fillFraction = Math.clamp(speedGuide.horizontalSpeed() / scaleMax, 0.0, 1.0);
+        int filledRight = left + (int) Math.round(SPEEDOMETER_WIDTH * fillFraction);
+
+        boolean optimal = speedGuide.isOptimal();
+        boolean brightFlash = ((System.nanoTime() / 200_000_000L) & 1L) == 0L;
+        int onTargetColor = config.onTargetColor().argb();
+        int fillColor = optimal
+                ? withAlpha(onTargetColor, brightFlash ? 0xFF : 0x88)
+                : config.speedometerColor().argb();
+
+        graphics.fill(left - 1, top - 1, right + 1, bottom + 1, 0x88000000);
+        if (filledRight > left) {
+            graphics.fill(left, top, filledRight, bottom, fillColor);
+        }
+
+        int optimalMinX = left + (int) Math.round(
+                SPEEDOMETER_WIDTH * Math.clamp(speedGuide.optimalHorizontalMin() / scaleMax, 0.0, 1.0)
+        );
+        int optimalMaxX = left + (int) Math.round(
+                SPEEDOMETER_WIDTH * Math.clamp(speedGuide.optimalHorizontalMax() / scaleMax, 0.0, 1.0)
+        );
+        int markerColor = withAlpha(onTargetColor, 0xCC);
+        graphics.fill(optimalMinX, top - 2, optimalMinX + 1, bottom + 2, markerColor);
+        graphics.fill(optimalMaxX, top - 2, optimalMaxX + 1, bottom + 2, markerColor);
+
+        String speedText = optimal
+                ? String.format(
+                        Locale.ROOT,
+                        "↑ H %.2f m/s • V %.2f m/s ↑",
+                        speedGuide.horizontalSpeed(),
+                        speedGuide.verticalSpeed()
+                )
+                : String.format(
+                        Locale.ROOT,
+                        "H %.2f m/s • V %.2f m/s",
+                        speedGuide.horizontalSpeed(),
+                        speedGuide.verticalSpeed()
+                );
+        int textColor = optimal ? withAlpha(onTargetColor, brightFlash ? 0xFF : 0x99) : 0xFFFFFFFF;
+        graphics.centeredText(Minecraft.getInstance().font, speedText, centerX, bottom + 3, textColor);
+    }
+
     private static int pitchToScreenY(double targetPitch, double currentPitch, int screenHeight, double fovDegrees) {
         double pitchDelta = targetPitch - currentPitch;
         if (pitchDelta <= -89.0) {
@@ -229,5 +289,9 @@ public final class GuideHudRenderer {
             wrapped += 360.0;
         }
         return wrapped;
+    }
+
+    private static int withAlpha(int argb, int alpha) {
+        return (Math.clamp(alpha, 0, 255) << 24) | (argb & 0x00FFFFFF);
     }
 }
