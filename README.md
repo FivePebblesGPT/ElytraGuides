@@ -8,11 +8,13 @@ Minecraft pitch uses negative values for looking upward and positive values for 
 
 - Hold the downward approach around **+32.5°**.
 - Snap upward through **-49.0°**.
-- Crossing -49° resets a tracking circle to -49°.
-- The circle then moves downward toward +32.5° at **10°/second at 20 TPS** (0.5° per tick), with optional effective-TPS compensation.
-- The tracking circle changes to the configured on-target color when your pitch is within the tolerance.
+- Crossing -49° resets a two-bar tracking target to -49°.
+- The target then moves downward toward +32.5° at **10°/second at 20 TPS** (0.5° per tick), with optional effective-TPS compensation.
+- The two tracking bars change to the configured on-target color when your pitch is within the tolerance.
 
 The +32.5° and -49° guides are short centered pitch bars. They move vertically on screen as your pitch changes, so the center/crosshair intersects a bar at its exact configured pitch.
+
+A separate horizontal-drift guide tracks the circular-average yaw from the previous **2 seconds**. It draws a horizontal pointer from the current heading toward that rolling average, making unwanted left/right mouse movement easier to notice while executing the maneuver.
 
 ## Toggle key
 
@@ -23,7 +25,7 @@ Press **G** by default to toggle Elytra Guides at runtime. The same key mapping 
 
 Both interfaces edit the same Minecraft key mapping, so the binding stays synchronized and is saved in the normal Minecraft controls configuration.
 
-The runtime toggle controls the complete feature set: pitch guides, tracking target, altitude logging, and custom crosshair. The owo-config `enabled` option remains the persistent master switch.
+The runtime toggle controls the complete feature set: pitch guides, tracking target, horizontal-drift history, altitude logging, and custom crosshair. The owo-config `enabled` option remains the persistent master switch.
 
 ## Crosshair
 
@@ -41,6 +43,8 @@ The primary cycle metric is **peak-to-peak gain**:
 - each later peak reports `current peak Y - previous peak Y`;
 - positive values mean the tech gained elevation that cycle, negative values mean it lost elevation.
 
+The gain value is color graded from **red at -10 blocks or worse**, through **white at 0**, to the configured **lime on-target color at +10 blocks or better**.
+
 Amplitude is kept separate from gain. When **Show cycle amplitude** is enabled, the same completed-cycle notification also shows:
 
 - `↓` previous peak to trough distance; and
@@ -48,9 +52,9 @@ Amplitude is kept separate from gain. When **Show cycle amplitude** is enabled, 
 
 For example: `Cycle gain +4.25 blocks • amplitude ↓36.10 / ↑40.35 • peak Y 128.70`.
 
-This deliberately avoids calling trough-to-peak ascent distance "gain". An optional flight-end summary reports maximum Y and the net peak-to-peak gain from the first detected peak to the last completed peak.
+This deliberately avoids calling trough-to-peak ascent distance "gain". The flight-end summary reports maximum Y, net peak-to-peak gain, accumulated 3D path distance, accumulated horizontal path distance, average horizontal speed, and elapsed flight time. Path distance is accumulated sample-by-sample, so flying 1 km north and then 1 km south contributes 2 km rather than cancelling back to zero displacement.
 
-Cycle messages can go to a small HUD toast, chat, both, or nowhere.
+Cycle messages can go to a HUD toast, chat, both, or nowhere. HUD toasts use a translucent background, remain visible for at least 5 seconds, and fade smoothly rather than disappearing abruptly.
 
 ## Configuration
 
@@ -61,6 +65,7 @@ Important settings include:
 - approach/snap pitch;
 - return rate and TPS compensation;
 - target tolerance and guide dimensions/colors;
+- two-second horizontal-drift guide and color;
 - dot crosshair/color and whether it is flight-only;
 - toggle key binding;
 - cycle-gain logging, amplitude display, and output destination;
