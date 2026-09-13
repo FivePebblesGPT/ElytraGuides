@@ -15,7 +15,7 @@ import java.util.function.BooleanSupplier;
 public final class GuideHudRenderer {
     private static final int TARGET_BAR_WIDTH = 18;
     private static final int TARGET_BAR_OFFSET = 3;
-    private static final int DRIFT_GUIDE_Y_OFFSET = 12;
+    private static final int DRIFT_GUIDE_Y_OFFSET = -12;
     private static final int SPEEDOMETER_Y_OFFSET = 25;
     private static final int SPEEDOMETER_WIDTH = 96;
     private static final int SPEEDOMETER_HEIGHT = 4;
