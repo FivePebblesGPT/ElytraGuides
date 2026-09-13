@@ -34,7 +34,7 @@ public final class ElytraGuidesClient implements ClientModInitializer {
     private final HorizontalDriftTracker horizontalDriftTracker = new HorizontalDriftTracker();
     private final HudToastManager toastManager = new HudToastManager();
     private final NotificationService notifications = new NotificationService(CONFIG, toastManager);
-    private final SpeedGuide speedGuide = new SpeedGuide(CONFIG, notifications);
+    private final SpeedGuide speedGuide = new SpeedGuide(CONFIG);
     private final FlightAltitudeTracker altitudeTracker = new FlightAltitudeTracker(CONFIG, notifications);
     private final GuideHudRenderer guideHudRenderer = new GuideHudRenderer(
             CONFIG,
