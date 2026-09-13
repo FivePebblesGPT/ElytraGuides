@@ -24,11 +24,9 @@ public final class FlightAltitudeTracker {
     private double previousPeakY;
 
     private long flightStartedNanos;
-    private double traveledDistance;
     private double horizontalDistance;
     private boolean hasPositionSample;
     private double lastX;
-    private double lastY;
     private double lastZ;
 
     private boolean hasSignedSample;
@@ -51,7 +49,7 @@ public final class FlightAltitudeTracker {
     ) {
         if (!isFlying) {
             if (inFlight) {
-                updateDistance(x, y, z);
+                updateHorizontalDistance(x, z);
                 endFlight(y, nowNanos);
             }
             return;
@@ -60,7 +58,7 @@ public final class FlightAltitudeTracker {
         if (!inFlight) {
             beginFlight(x, y, z, nowNanos);
         } else {
-            updateDistance(x, y, z);
+            updateHorizontalDistance(x, z);
         }
 
         maxY = Math.max(maxY, y);
@@ -101,7 +99,6 @@ public final class FlightAltitudeTracker {
         hasPositionSample = false;
         lastTurnType = TurnType.START;
         peakCount = 0;
-        traveledDistance = 0.0;
         horizontalDistance = 0.0;
         flightStartedNanos = 0L;
     }
@@ -115,32 +112,25 @@ public final class FlightAltitudeTracker {
         hasSignedSample = false;
 
         flightStartedNanos = nowNanos;
-        traveledDistance = 0.0;
         horizontalDistance = 0.0;
         hasPositionSample = true;
         lastX = x;
-        lastY = y;
         lastZ = z;
     }
 
-    private void updateDistance(double x, double y, double z) {
+    private void updateHorizontalDistance(double x, double z) {
         if (!hasPositionSample) {
             hasPositionSample = true;
             lastX = x;
-            lastY = y;
             lastZ = z;
             return;
         }
 
         double dx = x - lastX;
-        double dy = y - lastY;
         double dz = z - lastZ;
-
-        traveledDistance += Math.sqrt(dx * dx + dy * dy + dz * dz);
-        horizontalDistance += Math.sqrt(dx * dx + dz * dz);
+        horizontalDistance += Math.hypot(dx, dz);
 
         lastX = x;
-        lastY = y;
         lastZ = z;
     }
 
@@ -222,8 +212,7 @@ public final class FlightAltitudeTracker {
 
             summary.append(Component.literal(String.format(
                     Locale.ROOT,
-                    "  •  distance %s  •  horiz %s  •  avg horiz %.2f blocks/s  •  time %.1fs",
-                    formatDistance(traveledDistance),
+                    "  •  distance %s  •  avg horiz %.2f m/s  •  time %.1fs",
                     formatDistance(horizontalDistance),
                     averageHorizontalSpeed,
                     elapsedSeconds
