@@ -6,6 +6,7 @@ import io.github.fivepebblesgpt.elytraguides.flight.FlightAltitudeTracker;
 import io.github.fivepebblesgpt.elytraguides.flight.HorizontalDriftTracker;
 import io.github.fivepebblesgpt.elytraguides.flight.ManeuverGuide;
 import io.github.fivepebblesgpt.elytraguides.flight.NotificationService;
+import io.github.fivepebblesgpt.elytraguides.flight.SpeedGuide;
 import io.github.fivepebblesgpt.elytraguides.flight.TpsEstimator;
 import io.github.fivepebblesgpt.elytraguides.hud.CrosshairRenderer;
 import io.github.fivepebblesgpt.elytraguides.hud.GuideHudRenderer;
@@ -33,12 +34,14 @@ public final class ElytraGuidesClient implements ClientModInitializer {
     private final HorizontalDriftTracker horizontalDriftTracker = new HorizontalDriftTracker();
     private final HudToastManager toastManager = new HudToastManager();
     private final NotificationService notifications = new NotificationService(CONFIG, toastManager);
+    private final SpeedGuide speedGuide = new SpeedGuide(CONFIG, notifications);
     private final FlightAltitudeTracker altitudeTracker = new FlightAltitudeTracker(CONFIG, notifications);
     private final GuideHudRenderer guideHudRenderer = new GuideHudRenderer(
             CONFIG,
             maneuverGuide,
             TPS_ESTIMATOR,
             horizontalDriftTracker,
+            speedGuide,
             this::isFunctionalityEnabled
     );
     private final CrosshairRenderer crosshairRenderer = new CrosshairRenderer(CONFIG, this::isFunctionalityEnabled);
@@ -109,14 +112,17 @@ public final class ElytraGuidesClient implements ClientModInitializer {
         TPS_ESTIMATOR.onClientTick(nowNanos);
 
         boolean flying = minecraft.player.isFallFlying();
+        var velocity = minecraft.player.getDeltaMovement();
+
         maneuverGuide.tick(flying, minecraft.player.getXRot(), nowNanos);
         horizontalDriftTracker.tick(flying, minecraft.player.getYRot(), nowNanos);
+        speedGuide.tick(flying, velocity.x, velocity.y, velocity.z);
         altitudeTracker.tick(
                 flying,
                 minecraft.player.getX(),
                 minecraft.player.getY(),
                 minecraft.player.getZ(),
-                minecraft.player.getDeltaMovement().y,
+                velocity.y,
                 nowNanos
         );
     }
@@ -147,6 +153,7 @@ public final class ElytraGuidesClient implements ClientModInitializer {
     private void resetRuntimeState() {
         maneuverGuide.reset();
         horizontalDriftTracker.reset();
+        speedGuide.reset();
         altitudeTracker.reset();
         TPS_ESTIMATOR.reset();
         toastManager.clear();
