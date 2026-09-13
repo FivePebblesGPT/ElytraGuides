@@ -33,11 +33,13 @@ public class ElytraGuidesConfigModel {
 
     public boolean showPitchLabels = true;
     public boolean showTargetError = true;
+    public boolean showHorizontalDriftGuide = true;
 
     public Color approachColor = Color.ofArgb(0xDD55C7FF);
     public Color snapColor = Color.ofArgb(0xDDFFB347);
     public Color targetColor = Color.ofArgb(0xFFFFFFFF);
     public Color onTargetColor = Color.ofArgb(0xFF55FF88);
+    public Color horizontalDriftColor = Color.ofArgb(0xCCFFFFFF);
 
     @SectionHeader("crosshair")
     public boolean dotCrosshair = true;
@@ -55,6 +57,6 @@ public class ElytraGuidesConfigModel {
     @RangeConstraint(min = 0.0, max = 0.1, decimalPlaces = 4)
     public double verticalSpeedDeadzone = 0.0025;
 
-    @RangeConstraint(min = 500, max = 10000)
-    public int toastDurationMs = 2200;
+    @RangeConstraint(min = 5000, max = 20000)
+    public int toastDurationMs = 6500;
 }
