@@ -41,6 +41,25 @@ public class ElytraGuidesConfigModel {
     public Color onTargetColor = Color.ofArgb(0xFF55FF88);
     public Color horizontalDriftColor = Color.ofArgb(0xCCFFFFFF);
 
+    @SectionHeader("speed")
+    public boolean showSpeedometer = true;
+
+    @RangeConstraint(min = 0.0, max = 100.0, decimalPlaces = 2)
+    public double optimalHorizontalSpeedMin = 42.0;
+
+    @RangeConstraint(min = 0.0, max = 100.0, decimalPlaces = 2)
+    public double optimalHorizontalSpeedMax = 43.0;
+
+    @RangeConstraint(min = -100.0, max = 100.0, decimalPlaces = 2)
+    public double optimalVerticalSpeed = -7.54;
+
+    @RangeConstraint(min = 0.0, max = 20.0, decimalPlaces = 2)
+    public double optimalVerticalSpeedTolerance = 0.75;
+
+    public boolean notifyOptimalSpeed = true;
+    public LogDestination optimalSpeedDestination = LogDestination.HUD_TOAST;
+    public Color speedometerColor = Color.ofArgb(0xCCFFFFFF);
+
     @SectionHeader("crosshair")
     public boolean dotCrosshair = true;
     public Color crosshairColor = Color.ofArgb(0xFFFFFFFF);
