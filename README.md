@@ -14,7 +14,7 @@ Minecraft pitch uses negative values for looking upward and positive values for 
 
 The +32.5° and -49° guides are short centered pitch bars. They move vertically on screen as your pitch changes, so the center/crosshair intersects a bar at its exact configured pitch.
 
-A separate horizontal-drift guide tracks the circular-average yaw from the previous **2 seconds**. It draws a horizontal pointer from the current heading toward that rolling average, making unwanted left/right mouse movement easier to notice while executing the maneuver.
+A separate horizontal-drift guide tracks the circular-average yaw from the previous **2 seconds**. It draws a horizontal pointer **12 px above the crosshair** from the current heading toward that rolling average, making unwanted left/right mouse movement easier to notice without colliding with the target-error text below the cursor.
 
 ## Speed guidance
 
@@ -25,9 +25,9 @@ The default tested optimal envelope is:
 - horizontal speed: **42.00–43.00 m/s**;
 - vertical speed: **-7.54 ± 0.75 m/s**.
 
-The horizontal optimal band is marked on the speedometer. When both horizontal and vertical speed are inside the configured envelope, the bar switches to the lime on-target color, flashes, and shows upward arrows around the speed readout. Entering the envelope also sends an optional notification such as `Optimal speed • H 42.56 m/s • V -7.48 m/s`.
+The horizontal optimal band is marked on the speedometer. When both horizontal and vertical speed are inside the configured envelope, the bar switches to the lime on-target color, flashes, and shows upward arrows around the speed readout. There is no separate optimal-speed toast; the flashing lime readout and arrows are the cue.
 
-The horizontal range, vertical target/tolerance, speedometer visibility/color, notification toggle, and notification destination are configurable. Notification hysteresis prevents rapid repeated toasts when speed jitters around the boundary.
+The horizontal range, vertical target/tolerance, speedometer visibility, and speedometer color are configurable.
 
 ## Toggle key
 
@@ -80,7 +80,6 @@ Important settings include:
 - target tolerance and guide dimensions/colors;
 - two-second horizontal-drift guide and color;
 - speedometer and optimal horizontal/vertical speed envelope;
-- optimal-speed notification and output destination;
 - dot crosshair/color and whether it is flight-only;
 - toggle key binding;
 - cycle-gain logging, amplitude display, and output destination;
