@@ -3,6 +3,7 @@ package io.github.fivepebblesgpt.elytraguides;
 import com.mojang.blaze3d.platform.InputConstants;
 import io.github.fivepebblesgpt.elytraguides.config.ElytraGuidesConfig;
 import io.github.fivepebblesgpt.elytraguides.flight.FlightAltitudeTracker;
+import io.github.fivepebblesgpt.elytraguides.flight.HorizontalDriftTracker;
 import io.github.fivepebblesgpt.elytraguides.flight.ManeuverGuide;
 import io.github.fivepebblesgpt.elytraguides.flight.NotificationService;
 import io.github.fivepebblesgpt.elytraguides.flight.TpsEstimator;
@@ -29,6 +30,7 @@ public final class ElytraGuidesClient implements ClientModInitializer {
     private boolean runtimeEnabled = true;
 
     private final ManeuverGuide maneuverGuide = new ManeuverGuide(CONFIG);
+    private final HorizontalDriftTracker horizontalDriftTracker = new HorizontalDriftTracker();
     private final HudToastManager toastManager = new HudToastManager();
     private final NotificationService notifications = new NotificationService(CONFIG, toastManager);
     private final FlightAltitudeTracker altitudeTracker = new FlightAltitudeTracker(CONFIG, notifications);
@@ -36,6 +38,7 @@ public final class ElytraGuidesClient implements ClientModInitializer {
             CONFIG,
             maneuverGuide,
             TPS_ESTIMATOR,
+            horizontalDriftTracker,
             this::isFunctionalityEnabled
     );
     private final CrosshairRenderer crosshairRenderer = new CrosshairRenderer(CONFIG, this::isFunctionalityEnabled);
@@ -43,6 +46,7 @@ public final class ElytraGuidesClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         migrateIncorrectPitchDefaults();
+        migrateToastDuration();
 
         KeyMapping.Category category = KeyMapping.Category.register(
                 Identifier.fromNamespaceAndPath(MOD_ID, "controls")
@@ -106,7 +110,15 @@ public final class ElytraGuidesClient implements ClientModInitializer {
 
         boolean flying = minecraft.player.isFallFlying();
         maneuverGuide.tick(flying, minecraft.player.getXRot(), nowNanos);
-        altitudeTracker.tick(flying, minecraft.player.getY(), minecraft.player.getDeltaMovement().y);
+        horizontalDriftTracker.tick(flying, minecraft.player.getYRot(), nowNanos);
+        altitudeTracker.tick(
+                flying,
+                minecraft.player.getX(),
+                minecraft.player.getY(),
+                minecraft.player.getZ(),
+                minecraft.player.getDeltaMovement().y,
+                nowNanos
+        );
     }
 
     private void handleToggleKey(Minecraft minecraft) {
@@ -134,6 +146,7 @@ public final class ElytraGuidesClient implements ClientModInitializer {
 
     private void resetRuntimeState() {
         maneuverGuide.reset();
+        horizontalDriftTracker.reset();
         altitudeTracker.reset();
         TPS_ESTIMATOR.reset();
         toastManager.clear();
@@ -144,6 +157,12 @@ public final class ElytraGuidesClient implements ClientModInitializer {
                 && Float.compare(CONFIG.snapPitch(), 49.0f) == 0) {
             CONFIG.approachPitch(32.5f);
             CONFIG.snapPitch(-49.0f);
+        }
+    }
+
+    private static void migrateToastDuration() {
+        if (CONFIG.toastDurationMs() < 5000) {
+            CONFIG.toastDurationMs(6500);
         }
     }
 }
