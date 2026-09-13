@@ -16,6 +16,19 @@ The +32.5° and -49° guides are short centered pitch bars. They move vertically
 
 A separate horizontal-drift guide tracks the circular-average yaw from the previous **2 seconds**. It draws a horizontal pointer from the current heading toward that rolling average, making unwanted left/right mouse movement easier to notice while executing the maneuver.
 
+## Speed guidance
+
+A compact bar speedometer is shown near the crosshair while Elytra flying. It displays horizontal and vertical speed with **two decimal places** and fills according to horizontal speed.
+
+The default tested optimal envelope is:
+
+- horizontal speed: **42.00–43.00 m/s**;
+- vertical speed: **-7.54 ± 0.75 m/s**.
+
+The horizontal optimal band is marked on the speedometer. When both horizontal and vertical speed are inside the configured envelope, the bar switches to the lime on-target color, flashes, and shows upward arrows around the speed readout. Entering the envelope also sends an optional notification such as `Optimal speed • H 42.56 m/s • V -7.48 m/s`.
+
+The horizontal range, vertical target/tolerance, speedometer visibility/color, notification toggle, and notification destination are configurable. Notification hysteresis prevents rapid repeated toasts when speed jitters around the boundary.
+
 ## Toggle key
 
 Press **G** by default to toggle Elytra Guides at runtime. The same key mapping can be rebound from either:
@@ -25,7 +38,7 @@ Press **G** by default to toggle Elytra Guides at runtime. The same key mapping 
 
 Both interfaces edit the same Minecraft key mapping, so the binding stays synchronized and is saved in the normal Minecraft controls configuration.
 
-The runtime toggle controls the complete feature set: pitch guides, tracking target, horizontal-drift history, altitude logging, and custom crosshair. The owo-config `enabled` option remains the persistent master switch.
+The runtime toggle controls the complete feature set: pitch guides, tracking target, horizontal-drift history, speed guidance, altitude logging, and custom crosshair. The owo-config `enabled` option remains the persistent master switch.
 
 ## Crosshair
 
@@ -52,7 +65,7 @@ Amplitude is kept separate from gain. When **Show cycle amplitude** is enabled, 
 
 For example: `Cycle gain +4.25 blocks • amplitude ↓36.10 / ↑40.35 • peak Y 128.70`.
 
-This deliberately avoids calling trough-to-peak ascent distance "gain". The flight-end summary reports maximum Y, net peak-to-peak gain, accumulated 3D path distance, accumulated horizontal path distance, average horizontal speed, and elapsed flight time. Path distance is accumulated sample-by-sample, so flying 1 km north and then 1 km south contributes 2 km rather than cancelling back to zero displacement.
+This deliberately avoids calling trough-to-peak ascent distance "gain". The flight-end summary reports maximum Y, net peak-to-peak gain, accumulated **horizontal** path distance, average horizontal speed, and elapsed flight time. Horizontal path distance is accumulated sample-by-sample, so flying 1 km north and then 1 km south contributes 2 km rather than cancelling back to zero displacement. Vertical travel is not included in the distance field.
 
 Cycle messages can go to a HUD toast, chat, both, or nowhere. HUD toasts use a translucent background, remain visible for at least 5 seconds, and fade smoothly rather than disappearing abruptly.
 
@@ -66,6 +79,8 @@ Important settings include:
 - return rate and TPS compensation;
 - target tolerance and guide dimensions/colors;
 - two-second horizontal-drift guide and color;
+- speedometer and optimal horizontal/vertical speed envelope;
+- optimal-speed notification and output destination;
 - dot crosshair/color and whether it is flight-only;
 - toggle key binding;
 - cycle-gain logging, amplitude display, and output destination;
