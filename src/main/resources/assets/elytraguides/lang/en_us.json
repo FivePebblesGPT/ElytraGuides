@@ -1,5 +1,6 @@
 {
   "text.config.elytraguides.section.guide": "Flight guide",
+  "text.config.elytraguides.section.speed": "Speed guidance",
   "text.config.elytraguides.section.crosshair": "Crosshair",
   "text.config.elytraguides.section.altitude": "Altitude logging",
 
@@ -28,6 +29,25 @@
   "text.config.elytraguides.option.toggleKey": "Toggle key",
   "text.config.elytraguides.option.toggleKey.listening": "Press a key...",
   "text.config.elytraguides.option.toggleKey.reset": "Reset",
+
+  "text.config.elytraguides.option.showSpeedometer": "Show speedometer",
+  "text.config.elytraguides.option.showSpeedometer.tooltip": "Show a horizontal-speed bar near the crosshair with live horizontal and vertical speed values.",
+  "text.config.elytraguides.option.optimalHorizontalSpeedMin": "Optimal horizontal speed min (m/s)",
+  "text.config.elytraguides.option.optimalHorizontalSpeedMin.tooltip": "Lower edge of the tested optimal horizontal-speed band. Default: 42.00 m/s.",
+  "text.config.elytraguides.option.optimalHorizontalSpeedMax": "Optimal horizontal speed max (m/s)",
+  "text.config.elytraguides.option.optimalHorizontalSpeedMax.tooltip": "Upper edge of the tested optimal horizontal-speed band. Default: 43.00 m/s.",
+  "text.config.elytraguides.option.optimalVerticalSpeed": "Optimal vertical speed (m/s)",
+  "text.config.elytraguides.option.optimalVerticalSpeed.tooltip": "Tested vertical-speed target used for the optimal-speed cue. Default: -7.54 m/s.",
+  "text.config.elytraguides.option.optimalVerticalSpeedTolerance": "Vertical-speed tolerance (m/s)",
+  "text.config.elytraguides.option.optimalVerticalSpeedTolerance.tooltip": "Allowed difference from the vertical-speed target before the optimal-speed cue turns off. Default: ±0.75 m/s.",
+  "text.config.elytraguides.option.notifyOptimalSpeed": "Notify when optimal speed is reached",
+  "text.config.elytraguides.option.notifyOptimalSpeed.tooltip": "Send a notification when both horizontal and vertical speed enter the configured optimal envelope. Hysteresis prevents repeated notifications near the boundary.",
+  "text.config.elytraguides.option.optimalSpeedDestination": "Optimal-speed output",
+  "text.config.elytraguides.option.optimalSpeedDestination.value.off": "Off",
+  "text.config.elytraguides.option.optimalSpeedDestination.value.hud_toast": "HUD toast",
+  "text.config.elytraguides.option.optimalSpeedDestination.value.chat": "Chat",
+  "text.config.elytraguides.option.optimalSpeedDestination.value.both": "HUD toast + chat",
+  "text.config.elytraguides.option.speedometerColor": "Speedometer color",
 
   "text.config.elytraguides.option.dotCrosshair": "Use dot crosshair",
   "text.config.elytraguides.option.dotCrosshair.tooltip": "Replace the vanilla crosshair with a small 2x2 center dot when the crosshair replacement is active.",
