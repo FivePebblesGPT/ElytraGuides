@@ -56,8 +56,6 @@ public class ElytraGuidesConfigModel {
     @RangeConstraint(min = 0.0, max = 20.0, decimalPlaces = 2)
     public double optimalVerticalSpeedTolerance = 0.75;
 
-    public boolean notifyOptimalSpeed = true;
-    public LogDestination optimalSpeedDestination = LogDestination.HUD_TOAST;
     public Color speedometerColor = Color.ofArgb(0xCCFFFFFF);
 
     @SectionHeader("crosshair")
