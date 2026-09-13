@@ -1,6 +1,7 @@
 package io.github.fivepebblesgpt.elytraguides.hud;
 
 import io.github.fivepebblesgpt.elytraguides.config.ElytraGuidesConfig;
+import io.github.fivepebblesgpt.elytraguides.flight.HorizontalDriftTracker;
 import io.github.fivepebblesgpt.elytraguides.flight.ManeuverGuide;
 import io.github.fivepebblesgpt.elytraguides.flight.TpsEstimator;
 import net.minecraft.client.DeltaTracker;
@@ -11,20 +12,27 @@ import java.util.Locale;
 import java.util.function.BooleanSupplier;
 
 public final class GuideHudRenderer {
+    private static final int TARGET_BAR_WIDTH = 18;
+    private static final int TARGET_BAR_OFFSET = 3;
+    private static final int DRIFT_GUIDE_Y_OFFSET = 12;
+
     private final ElytraGuidesConfig config;
     private final ManeuverGuide maneuverGuide;
     private final TpsEstimator tpsEstimator;
+    private final HorizontalDriftTracker horizontalDriftTracker;
     private final BooleanSupplier functionalityEnabled;
 
     public GuideHudRenderer(
             ElytraGuidesConfig config,
             ManeuverGuide maneuverGuide,
             TpsEstimator tpsEstimator,
+            HorizontalDriftTracker horizontalDriftTracker,
             BooleanSupplier functionalityEnabled
     ) {
         this.config = config;
         this.maneuverGuide = maneuverGuide;
         this.tpsEstimator = tpsEstimator;
+        this.horizontalDriftTracker = horizontalDriftTracker;
         this.functionalityEnabled = functionalityEnabled;
     }
 
@@ -38,9 +46,11 @@ public final class GuideHudRenderer {
         maneuverGuide.advanceTarget(nowNanos, tpsEstimator.estimatedTps());
 
         float currentPitch = minecraft.player.getXRot();
+        float currentYaw = minecraft.player.getYRot();
         int screenWidth = graphics.guiWidth();
         int screenHeight = graphics.guiHeight();
         int centerX = screenWidth / 2;
+        int centerY = screenHeight / 2;
         double fovDegrees = minecraft.options.fov().get();
 
         drawPitchBar(
@@ -61,6 +71,18 @@ public final class GuideHudRenderer {
                 config.snapColor().argb(),
                 fovDegrees
         );
+
+        if (config.showHorizontalDriftGuide() && horizontalDriftTracker.hasHistory()) {
+            drawHorizontalDriftGuide(
+                    graphics,
+                    screenWidth,
+                    screenHeight,
+                    centerX,
+                    centerY,
+                    currentYaw,
+                    fovDegrees
+            );
+        }
 
         if (maneuverGuide.isTargetActive()) {
             drawTarget(graphics, centerX, screenHeight, currentPitch, fovDegrees);
@@ -112,16 +134,59 @@ public final class GuideHudRenderer {
 
         boolean onTarget = maneuverGuide.isOnTarget(currentPitch);
         int color = onTarget ? config.onTargetColor().argb() : config.targetColor().argb();
+        int thickness = Math.max(1, config.guideBarThickness());
+        int halfWidth = TARGET_BAR_WIDTH / 2;
+        int left = centerX - halfWidth;
+        int right = centerX + halfWidth;
 
-        drawCircle(graphics, centerX, y, 5, color);
-        if (onTarget) {
-            graphics.fill(centerX - 1, y - 1, centerX + 1, y + 1, color);
-        }
+        graphics.fill(
+                left,
+                y - TARGET_BAR_OFFSET - thickness,
+                right,
+                y - TARGET_BAR_OFFSET,
+                color
+        );
+        graphics.fill(
+                left,
+                y + TARGET_BAR_OFFSET,
+                right,
+                y + TARGET_BAR_OFFSET + thickness,
+                color
+        );
 
         if (config.showTargetError()) {
             String error = String.format(Locale.ROOT, "Δ%+.1f°", maneuverGuide.targetError(currentPitch));
-            graphics.centeredText(Minecraft.getInstance().font, error, centerX, y + 8, color);
+            graphics.centeredText(Minecraft.getInstance().font, error, centerX, y + TARGET_BAR_OFFSET + thickness + 3, color);
         }
+    }
+
+    private void drawHorizontalDriftGuide(
+            GuiGraphicsExtractor graphics,
+            int screenWidth,
+            int screenHeight,
+            int centerX,
+            int centerY,
+            float currentYaw,
+            double fovDegrees
+    ) {
+        double averageYaw = horizontalDriftTracker.averageYawDegrees();
+        int targetX = yawToScreenX(averageYaw, currentYaw, screenWidth, screenHeight, fovDegrees);
+        targetX = Math.clamp(targetX, 4, screenWidth - 4);
+
+        int y = centerY + DRIFT_GUIDE_Y_OFFSET;
+        int color = config.horizontalDriftColor().argb();
+        int delta = targetX - centerX;
+
+        if (Math.abs(delta) <= 1) {
+            graphics.fill(centerX - 2, y, centerX + 3, y + 1, color);
+            return;
+        }
+
+        int startX = centerX + Integer.signum(delta) * 3;
+        int left = Math.min(startX, targetX);
+        int right = Math.max(startX, targetX);
+        graphics.fill(left, y, right + 1, y + 1, color);
+        graphics.fill(targetX, y - 2, targetX + 1, y + 3, color);
     }
 
     private static int pitchToScreenY(double targetPitch, double currentPitch, int screenHeight, double fovDegrees) {
@@ -139,42 +204,30 @@ public final class GuideHudRenderer {
         return (int) Math.round(screenHeight / 2.0 + offset);
     }
 
-    private static void drawCircle(GuiGraphicsExtractor graphics, int centerX, int centerY, int radius, int color) {
-        int x = radius;
-        int y = 0;
-        int error = 1 - x;
-
-        while (x >= y) {
-            plotCircleOctants(graphics, centerX, centerY, x, y, color);
-            y++;
-            if (error < 0) {
-                error += 2 * y + 1;
-            } else {
-                x--;
-                error += 2 * (y - x) + 1;
-            }
-        }
-    }
-
-    private static void plotCircleOctants(
-            GuiGraphicsExtractor graphics,
-            int centerX,
-            int centerY,
-            int x,
-            int y,
-            int color
+    private static int yawToScreenX(
+            double targetYaw,
+            double currentYaw,
+            int screenWidth,
+            int screenHeight,
+            double fovDegrees
     ) {
-        pixel(graphics, centerX + x, centerY + y, color);
-        pixel(graphics, centerX + y, centerY + x, color);
-        pixel(graphics, centerX - y, centerY + x, color);
-        pixel(graphics, centerX - x, centerY + y, color);
-        pixel(graphics, centerX - x, centerY - y, color);
-        pixel(graphics, centerX - y, centerY - x, color);
-        pixel(graphics, centerX + y, centerY - x, color);
-        pixel(graphics, centerX + x, centerY - y, color);
+        double yawDelta = wrapDegrees(targetYaw - currentYaw);
+        yawDelta = Math.clamp(yawDelta, -85.0, 85.0);
+
+        double safeFov = Math.clamp(fovDegrees, 30.0, 120.0);
+        double focalLength = screenHeight / (2.0 * Math.tan(Math.toRadians(safeFov) / 2.0));
+        double offset = Math.tan(Math.toRadians(yawDelta)) * focalLength;
+        return (int) Math.round(screenWidth / 2.0 + offset);
     }
 
-    private static void pixel(GuiGraphicsExtractor graphics, int x, int y, int color) {
-        graphics.fill(x, y, x + 1, y + 1, color);
+    private static double wrapDegrees(double degrees) {
+        double wrapped = degrees % 360.0;
+        if (wrapped >= 180.0) {
+            wrapped -= 360.0;
+        }
+        if (wrapped < -180.0) {
+            wrapped += 360.0;
+        }
+        return wrapped;
     }
 }
